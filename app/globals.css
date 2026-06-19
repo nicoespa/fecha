@@ -1,0 +1,365 @@
+@import "tailwindcss";
+
+/* ============================================================
+   Fecha — design system
+   Dark, warm-neutral canvas + a single electric-mint hero.
+   Mint = brand = "available" = overlap. One idea, executed hard.
+   ============================================================ */
+
+:root {
+  color-scheme: dark;
+  --bg: #0a0b0d;
+  --bg-2: #0e1013;
+  --surface: #14171c;
+  --surface-2: #191d24;
+  --surface-3: #1f242c;
+  --border: rgba(255, 255, 255, 0.08);
+  --border-strong: rgba(255, 255, 255, 0.16);
+
+  --text: #eef1f5;
+  --muted: #9aa3b2;
+  --faint: #69707d;
+
+  /* Hero mint scale */
+  --mint: #3ee389;
+  --mint-bright: #6dffb0;
+  --mint-dim: #1f8f57;
+  --mint-rgb: 62, 227, 137;
+
+  /* Warm secondary (for conflicts / "nobody") */
+  --ember: #ff9d54;
+  --ember-rgb: 255, 157, 84;
+
+  --radius: 16px;
+  --radius-sm: 10px;
+  --shadow-1: 0 1px 0 rgba(255, 255, 255, 0.04) inset, 0 12px 40px -16px rgba(0, 0, 0, 0.7);
+  --glow: 0 0 0 1px rgba(var(--mint-rgb), 0.4), 0 8px 30px -6px rgba(var(--mint-rgb), 0.45);
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-text: var(--text);
+  --color-muted: var(--muted);
+  --color-mint: var(--mint);
+  --font-display: var(--font-display);
+  --font-sans: var(--font-body);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body), ui-sans-serif, system-ui, sans-serif;
+  font-feature-settings: "ss01", "cv01";
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  overflow-x: hidden;
+}
+
+/* Atmosphere: layered radial glows fixed behind everything */
+.atmosphere {
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  pointer-events: none;
+  background:
+    radial-gradient(900px 600px at 78% -10%, rgba(var(--mint-rgb), 0.16), transparent 60%),
+    radial-gradient(700px 500px at 12% 8%, rgba(120, 160, 255, 0.06), transparent 55%),
+    radial-gradient(1000px 700px at 50% 120%, rgba(var(--mint-rgb), 0.07), transparent 60%),
+    var(--bg);
+}
+
+/* Fine grain overlay */
+.grain {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0.04;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+::selection {
+  background: rgba(var(--mint-rgb), 0.3);
+  color: #fff;
+}
+
+/* Typography */
+.display {
+  font-family: var(--font-display), serif;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  line-height: 0.98;
+}
+
+.mono {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--surface-3);
+  border-radius: 99px;
+  border: 2px solid var(--bg);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #2c333d;
+}
+
+/* ---------- Components ---------- */
+
+.card {
+  background: linear-gradient(180deg, var(--surface-2), var(--surface));
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-1);
+}
+
+.input {
+  width: 100%;
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  padding: 0.7rem 0.9rem;
+  font-size: 0.975rem;
+  transition: border-color 0.15s, box-shadow 0.15s, background 0.15s;
+  outline: none;
+}
+.input::placeholder {
+  color: var(--faint);
+}
+.input:focus {
+  border-color: rgba(var(--mint-rgb), 0.55);
+  box-shadow: 0 0 0 3px rgba(var(--mint-rgb), 0.14);
+  background: var(--surface);
+}
+
+.label {
+  display: block;
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 0.45rem;
+  font-weight: 600;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border-radius: var(--radius-sm);
+  font-weight: 600;
+  font-size: 0.95rem;
+  padding: 0.72rem 1.15rem;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: transform 0.12s ease, background 0.15s, border-color 0.15s, box-shadow 0.15s, color 0.15s;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.btn:active {
+  transform: translateY(1px) scale(0.99);
+}
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-primary {
+  background: linear-gradient(180deg, var(--mint-bright), var(--mint));
+  color: #04150c;
+  box-shadow: 0 8px 26px -10px rgba(var(--mint-rgb), 0.7), 0 1px 0 rgba(255, 255, 255, 0.3) inset;
+}
+.btn-primary:hover:not(:disabled) {
+  box-shadow: 0 12px 34px -8px rgba(var(--mint-rgb), 0.85), 0 1px 0 rgba(255, 255, 255, 0.4) inset;
+}
+
+.btn-ghost {
+  background: var(--surface);
+  color: var(--text);
+  border-color: var(--border);
+}
+.btn-ghost:hover:not(:disabled) {
+  background: var(--surface-2);
+  border-color: var(--border-strong);
+}
+
+.btn-subtle {
+  background: transparent;
+  color: var(--muted);
+}
+.btn-subtle:hover:not(:disabled) {
+  color: var(--text);
+  background: var(--surface);
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.28rem 0.7rem;
+  border-radius: 99px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--muted);
+}
+.pill-mint {
+  border-color: rgba(var(--mint-rgb), 0.4);
+  background: rgba(var(--mint-rgb), 0.1);
+  color: var(--mint-bright);
+}
+
+.divider {
+  height: 1px;
+  background: var(--border);
+}
+
+/* Segmented control */
+.seg {
+  display: inline-flex;
+  background: var(--bg-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 3px;
+  gap: 3px;
+}
+.seg button {
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  font-weight: 600;
+  font-size: 0.88rem;
+  padding: 0.45rem 0.85rem;
+  border-radius: 7px;
+  cursor: pointer;
+  transition: color 0.15s, background 0.15s;
+  white-space: nowrap;
+}
+.seg button[data-active="true"] {
+  background: var(--surface-3);
+  color: var(--text);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.06) inset;
+}
+
+/* ---------- Animations ---------- */
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.fade-up {
+  animation: fade-up 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes pop {
+  0% {
+    transform: scale(0.9);
+    opacity: 0;
+  }
+  60% {
+    transform: scale(1.03);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+.pop {
+  animation: pop 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes float-glow {
+  0%, 100% {
+    opacity: 0.55;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(16px) translateX(-50%);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) translateX(-50%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+/* The availability grid: prevent scroll-hijack while painting */
+.grid-surface {
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.paint-cell {
+  cursor: pointer;
+  transition: background 0.08s ease, box-shadow 0.12s ease;
+  background: var(--surface);
+}
+.paint-empty:hover {
+  background: var(--surface-3);
+}
+
+/* Heatmap cells */
+.heat-cell {
+  transition: box-shadow 0.12s ease, filter 0.12s ease;
+}
+.heat-cell:hover {
+  filter: brightness(1.12);
+}
+.heat-active {
+  box-shadow: inset 0 0 0 2px var(--mint-bright), 0 0 14px -2px rgba(var(--mint-rgb), 0.6);
+  z-index: 5;
+}
+.heat-best {
+  box-shadow: inset 0 0 0 1.5px rgba(var(--mint-rgb), 0.9);
+}
+
+@keyframes cell-pulse {
+  0%, 100% {
+    box-shadow: inset 0 0 0 2px rgba(var(--mint-rgb), 0.9);
+  }
+  50% {
+    box-shadow: inset 0 0 0 2px var(--mint-bright), 0 0 18px 0 rgba(var(--mint-rgb), 0.7);
+  }
+}
+.cell-pulse {
+  animation: cell-pulse 1s ease-in-out 2;
+}
