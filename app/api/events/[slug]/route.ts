@@ -56,3 +56,23 @@ export async function PUT(
   await s.upsertParticipant(slug, participant);
   return NextResponse.json({ ok: true }, { headers: noStore });
 }
+
+export async function DELETE(
+  req: Request,
+  ctx: { params: Promise<{ slug: string }> },
+) {
+  const { slug } = await ctx.params;
+  const pid = (new URL(req.url).searchParams.get("pid") ?? "").slice(0, 64);
+  if (!pid) {
+    return NextResponse.json({ error: "Falta pid." }, { status: 400 });
+  }
+
+  const s = store();
+  const meta = await s.getMeta(slug);
+  if (!meta) {
+    return NextResponse.json({ error: "not_found" }, { status: 404 });
+  }
+
+  await s.deleteParticipant(slug, pid);
+  return NextResponse.json({ ok: true }, { headers: noStore });
+}

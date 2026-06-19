@@ -32,10 +32,12 @@ export function GroupView({
   meta,
   participants,
   myPid,
+  onRemove,
 }: {
   meta: EventMeta;
   participants: Participant[];
   myPid: string | null;
+  onRemove?: (pid: string) => void;
 }) {
   const spd = slotsPerDay(meta);
   const total = participants.length;
@@ -230,6 +232,108 @@ export function GroupView({
           <span>todos</span>
         </div>
       </div>
+
+      {onRemove && (
+        <Roster participants={participants} myPid={myPid} onRemove={onRemove} />
+      )}
+    </div>
+  );
+}
+
+function Roster({
+  participants,
+  myPid,
+  onRemove,
+}: {
+  participants: Participant[];
+  myPid: string | null;
+  onRemove: (pid: string) => void;
+}) {
+  return (
+    <div className="fade-up" style={{ animationDelay: "160ms" }}>
+      <h3 className="display text-[1.05rem] mb-2.5">
+        Respondieron ({participants.length})
+      </h3>
+      <div className="card overflow-hidden">
+        {participants.map((p, i) => (
+          <RosterRow
+            key={p.pid}
+            p={p}
+            color={colorFor(i)}
+            me={p.pid === myPid}
+            last={i === participants.length - 1}
+            onRemove={() => onRemove(p.pid)}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function RosterRow({
+  p,
+  color,
+  me,
+  last,
+  onRemove,
+}: {
+  p: Participant;
+  color: string;
+  me: boolean;
+  last: boolean;
+  onRemove: () => void;
+}) {
+  const [confirm, setConfirm] = useState(false);
+  return (
+    <div
+      className="flex items-center gap-3 px-4 py-3"
+      style={last ? undefined : { borderBottom: "1px solid var(--border)" }}
+    >
+      <span
+        className="h-6 w-6 rounded-full grid place-items-center text-[0.7rem] font-bold shrink-0"
+        style={{ background: color, color: "#04150c" }}
+      >
+        {p.name.charAt(0).toUpperCase()}
+      </span>
+      <span className="text-sm font-medium truncate">
+        {p.name}
+        {me && <span className="text-[var(--faint)] font-normal"> · vos</span>}
+      </span>
+      <span className="ml-auto text-xs text-[var(--muted)] mono shrink-0">
+        {p.slots.length} {p.slots.length === 1 ? "franja" : "franjas"}
+      </span>
+      {confirm ? (
+        <span className="flex items-center gap-2 shrink-0">
+          <button
+            onClick={onRemove}
+            className="text-xs font-semibold"
+            style={{ color: "var(--ember)" }}
+          >
+            Borrar
+          </button>
+          <button
+            onClick={() => setConfirm(false)}
+            className="text-xs text-[var(--muted)] hover:text-[var(--text)]"
+          >
+            No
+          </button>
+        </span>
+      ) : (
+        <button
+          onClick={() => setConfirm(true)}
+          aria-label={`Borrar a ${p.name}`}
+          className="shrink-0 h-7 w-7 grid place-items-center rounded-md text-[var(--faint)] hover:text-[var(--ember)] hover:bg-[var(--surface-3)] transition-colors"
+        >
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+            <path
+              d="M6 6l12 12M18 6L6 18"
+              stroke="currentColor"
+              strokeWidth="2.2"
+              strokeLinecap="round"
+            />
+          </svg>
+        </button>
+      )}
     </div>
   );
 }

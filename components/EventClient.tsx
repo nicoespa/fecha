@@ -29,6 +29,7 @@ export function EventClient({
   const [url, setUrl] = useState("");
   const [copied, setCopied] = useState(false);
   const saveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const removedRef = useRef<Set<string>>(new Set());
 
   const pidKey = `fecha:pid:${meta.slug}`;
   const nameKey = `fecha:name:${meta.slug}`;
@@ -59,7 +60,11 @@ export function EventClient({
         if (!r.ok) return;
         const data = await r.json();
         if (alive && Array.isArray(data.participants)) {
-          setParticipants(data.participants);
+          setParticipants(
+            data.participants.filter(
+              (p: Participant) => !removedRef.current.has(p.pid),
+            ),
+          );
         }
       } catch {
         /* offline; keep last state */
@@ -118,6 +123,29 @@ export function EventClient({
       }, 550);
     },
     [pid, name, persist],
+  );
+
+  const removeParticipant = useCallback(
+    (targetPid: string) => {
+      removedRef.current.add(targetPid);
+      setParticipants((prev) => prev.filter((p) => p.pid !== targetPid));
+      if (targetPid === pid) {
+        // me borré a mí mismo: olvido mi identidad y vuelvo a pedir nombre
+        localStorage.removeItem(pidKey);
+        localStorage.removeItem(nameKey);
+        setPid(null);
+        setName("");
+        setSelected(new Set());
+        setSave("idle");
+        setGateOpen(true);
+      }
+      fetch(`/api/events/${meta.slug}?pid=${encodeURIComponent(targetPid)}`, {
+        method: "DELETE",
+      }).catch(() => {
+        /* la próxima recarga reconcilia */
+      });
+    },
+    [pid, meta.slug, pidKey, nameKey],
   );
 
   const submitName = () => {
@@ -279,7 +307,12 @@ export function EventClient({
               )}
             </div>
           ) : (
-            <GroupView meta={meta} participants={merged} myPid={pid} />
+            <GroupView
+              meta={meta}
+              participants={merged}
+              myPid={pid}
+              onRemove={removeParticipant}
+            />
           )}
         </section>
       </main>

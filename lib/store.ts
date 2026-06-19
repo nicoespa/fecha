@@ -1,5 +1,5 @@
 import { Redis } from "@upstash/redis";
-import { list, put } from "@vercel/blob";
+import { del, list, put } from "@vercel/blob";
 import type { EventMeta, EventState, Participant } from "./types";
 
 /**
@@ -26,6 +26,7 @@ interface Store {
   getMeta(slug: string): Promise<EventMeta | null>;
   getEvent(slug: string): Promise<EventState | null>;
   upsertParticipant(slug: string, p: Participant): Promise<void>;
+  deleteParticipant(slug: string, pid: string): Promise<void>;
 }
 
 // ---------------- Redis-backed ----------------
@@ -66,6 +67,9 @@ function makeRedisStore(creds: { url: string; token: string }): Store {
       await redis.hset(pr(slug), { [p.pid]: JSON.stringify(p) });
       await redis.expire(pr(slug), TTL_SECONDS);
       await redis.expire(ev(slug), TTL_SECONDS);
+    },
+    async deleteParticipant(slug, pid) {
+      await redis.hdel(pr(slug), pid);
     },
   };
 }
@@ -154,6 +158,12 @@ function makeBlobStore(token: string): Store {
     async upsertParticipant(slug, p) {
       await writeJson(partPath(slug, p.pid), p);
     },
+    async deleteParticipant(slug, pid) {
+      const path = partPath(slug, pid);
+      const { blobs } = await list({ prefix: path, token, limit: 1 });
+      const b = blobs.find((x) => x.pathname === path);
+      if (b) await del(b.url, { token });
+    },
   };
 }
 
@@ -186,6 +196,9 @@ function makeMemoryStore(): Store {
       const e = db.get(slug);
       if (!e) return;
       e.parts.set(p.pid, p);
+    },
+    async deleteParticipant(slug, pid) {
+      db.get(slug)?.parts.delete(pid);
     },
   };
 }
