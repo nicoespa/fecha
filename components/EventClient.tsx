@@ -237,12 +237,11 @@ export function EventClient({
                 <p className="text-sm text-[var(--muted)] max-w-md">
                   {name ? (
                     <>
-                      Tocá y <strong className="text-[var(--text)]">arrastrá</strong>{" "}
-                      para pintar cuándo podés. Arrastrá de nuevo sobre lo verde
-                      para borrar.
+                      <strong className="text-[var(--text)]">Arrastrá</strong> para
+                      marcar cuándo podés. De nuevo para borrar.
                     </>
                   ) : (
-                    "Poné tu nombre para empezar a marcar."
+                    "Poné tu nombre para empezar."
                   )}
                 </p>
                 <div className="flex items-center gap-2">
@@ -291,7 +290,6 @@ export function EventClient({
           onChange={setGateName}
           onSubmit={submitName}
           onClose={pid ? () => setGateOpen(false) : undefined}
-          eventTitle={meta.title}
         />
       )}
     </div>
@@ -342,13 +340,11 @@ function NameGate({
   onChange,
   onSubmit,
   onClose,
-  eventTitle,
 }: {
   value: string;
   onChange: (v: string) => void;
   onSubmit: () => void;
   onClose?: () => void;
-  eventTitle: string;
 }) {
   return (
     <div
@@ -362,8 +358,7 @@ function NameGate({
       >
         <h2 className="display text-[1.4rem] mb-1">¿Cómo te llamás?</h2>
         <p className="text-sm text-[var(--muted)] mb-4">
-          Para que el resto sepa quién puede en{" "}
-          <span className="text-[var(--text)]">{eventTitle}</span>.
+          Así el resto sabe quién puede.
         </p>
         <input
           autoFocus

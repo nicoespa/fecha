@@ -118,11 +118,10 @@ export function GroupView({
       <div className="card p-8 text-center fade-up">
         <div className="text-3xl mb-3">🫥</div>
         <p className="text-[var(--text)] font-semibold mb-1">
-          Todavía no respondió nadie
+          Nadie respondió todavía
         </p>
         <p className="text-sm text-[var(--muted)]">
-          Compartí el link y cargá tu disponibilidad. Acá vas a ver el mapa de
-          quién puede, en vivo.
+          Compartí el link. Acá vas a ver quién puede, en vivo.
         </p>
       </div>
     );
@@ -207,8 +206,7 @@ export function GroupView({
         ) : (
           <p className="text-sm text-[var(--muted)] flex items-center gap-2 h-full">
             <span className="text-base">👆</span>
-            Pasá el dedo o el mouse por la grilla para ver quién puede en cada
-            franja.
+            Pasá por la grilla para ver quién puede.
           </p>
         )}
       </div>

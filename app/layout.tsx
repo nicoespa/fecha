@@ -19,11 +19,11 @@ const body = Hanken_Grotesk({
 export const metadata: Metadata = {
   title: "Fecha — cuándo podemos juntarnos",
   description:
-    "Mandá un link, cada uno pinta cuándo puede en la semana, y el mejor horario aparece solo. Sin chats infinitos de 'yo puedo acá'.",
+    "Mandá un link, cada uno marca cuándo puede y el mejor horario aparece solo.",
   openGraph: {
     title: "Fecha — cuándo podemos juntarnos",
     description:
-      "Cada uno pinta cuándo puede y el mejor horario aparece solo. En tiempo real.",
+      "Cada uno marca cuándo puede y el mejor horario aparece solo. En tiempo real.",
     type: "website",
   },
 };

@@ -36,19 +36,17 @@ export default function Home() {
               className="text-[var(--muted)] text-lg mt-5 max-w-md fade-up"
               style={{ animationDelay: "90ms" }}
             >
-              Basta de “yo puedo el jueves”, “yo el sábado no”. Mandá un link,
-              cada uno pinta cuándo puede en la semana y el{" "}
-              <span className="text-[var(--text)]">mejor horario aparece solo</span>
-              .
+              Mandá un link, cada uno marca cuándo puede y el{" "}
+              <span className="text-[var(--text)]">mejor horario aparece solo</span>.
             </p>
 
             <div
               className="flex flex-wrap gap-x-6 gap-y-2 mt-7 text-sm text-[var(--muted)] fade-up"
               style={{ animationDelay: "140ms" }}
             >
-              <Feature>Se actualiza en tiempo real</Feature>
-              <Feature>Sin apps ni registro</Feature>
-              <Feature>Funciona en el celular</Feature>
+              <Feature>Tiempo real</Feature>
+              <Feature>Sin registro</Feature>
+              <Feature>En el celular</Feature>
             </div>
           </div>
 
@@ -64,24 +62,24 @@ export default function Home() {
             <Step
               n="01"
               title="Creá la junta"
-              body="Elegí los días y la franja horaria. Te damos un link al toque."
+              body="Elegí días y horario. Tenés el link al toque."
             />
             <Step
               n="02"
               title="Pasá el link"
-              body="Cada uno entra, pone su nombre y pinta cuándo puede arrastrando."
+              body="Cada uno marca cuándo puede, sin registro."
             />
             <Step
               n="03"
-              title="Mirá la magia"
-              body="La grilla se ilumina donde coinciden y te marca el mejor horario."
+              title="Listo"
+              body="La grilla muestra dónde coinciden y el mejor horario."
             />
           </div>
         </section>
       </main>
 
       <footer className="max-w-5xl mx-auto px-4 sm:px-6 py-8 text-sm text-[var(--faint)] flex items-center justify-between">
-        <span>Fecha — coordinar juntadas sin sufrir.</span>
+        <span>Fecha</span>
         <span className="mono">hecho con ☕</span>
       </footer>
     </div>
