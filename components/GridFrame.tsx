@@ -23,6 +23,7 @@ interface Props {
   };
   rowHeight?: number;
   interactive?: boolean;
+  onDayHeader?: (dayIdx: number) => void;
 }
 
 export function GridFrame({
@@ -31,6 +32,7 @@ export function GridFrame({
   cellsHandlers,
   rowHeight = 32,
   interactive = false,
+  onDayHeader,
 }: Props) {
   const spd = slotsPerDay(meta);
   const labels = rowLabels(meta);
@@ -63,7 +65,15 @@ export function GridFrame({
             return (
               <div
                 key={d}
-                className="flex flex-col items-center justify-center pb-2 pt-1 select-none"
+                onClick={onDayHeader ? () => onDayHeader(di) : undefined}
+                role={onDayHeader ? "button" : undefined}
+                tabIndex={onDayHeader ? 0 : undefined}
+                title={onDayHeader ? "Marcar o borrar todo el día" : undefined}
+                className={`flex flex-col items-center justify-center pb-2 pt-1 select-none ${
+                  onDayHeader
+                    ? "cursor-pointer rounded-lg hover:bg-[var(--surface-2)] transition-colors"
+                    : ""
+                }`}
               >
                 <span
                   className="text-[0.62rem] font-bold tracking-[0.12em]"

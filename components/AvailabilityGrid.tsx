@@ -100,6 +100,18 @@ export function AvailabilityGrid({
     onChange(next);
   }, [value, onChange]);
 
+  const toggleDay = (dayIdx: number) => {
+    const start = dayIdx * spd;
+    const dayIdxs = Array.from({ length: spd }, (_, i) => start + i);
+    const allOn = dayIdxs.every((i) => value.has(i));
+    const next = new Set(value);
+    for (const i of dayIdxs) {
+      if (allOn) next.delete(i);
+      else next.add(i);
+    }
+    onChange(next);
+  };
+
   const renderCell = (d: number, s: number, idx: number): CellSpec => {
     const on = value.has(idx);
     const inPv = preview?.cells.has(idx) ?? false;
@@ -130,6 +142,7 @@ export function AvailabilityGrid({
       meta={meta}
       renderCell={renderCell}
       interactive
+      onDayHeader={toggleDay}
       cellsHandlers={{
         onPointerDown,
         onPointerMove,

@@ -8,9 +8,12 @@ import {
   dayHeader,
   dayLong,
   minutesToLabel,
+  parseDay,
   slotStartMin,
   slotsPerDay,
 } from "@/lib/slots";
+import { buildIcs, downloadIcs } from "@/lib/ics";
+import type { BestBlock } from "@/lib/slots";
 import type { EventMeta, Participant } from "@/lib/types";
 
 const PALETTE = [
@@ -115,6 +118,22 @@ export function GroupView({
     return { day, s, yes, no };
   }, [active, participants, spd]);
 
+  const agendar = (b: BestBlock) => {
+    const startAbs = slotStartMin(meta, b.startSlot);
+    const endAbs = slotStartMin(meta, b.endSlot) + meta.slotMin;
+    const start = parseDay(b.dayStr);
+    start.setMinutes(start.getMinutes() + startAbs);
+    const end = parseDay(b.dayStr);
+    end.setMinutes(end.getMinutes() + endAbs);
+    const ics = buildIcs({
+      title: meta.title,
+      start,
+      end,
+      uid: `${meta.slug}-${b.dayIdx}-${b.startSlot}@fecha`,
+    });
+    downloadIcs(`${meta.slug}.ics`, ics);
+  };
+
   if (total === 0) {
     return (
       <div className="card p-8 text-center fade-up">
@@ -146,10 +165,12 @@ export function GroupView({
               cells.push(b.dayIdx * spd + s);
             const everyone = b.count === total;
             return (
-              <button
+              <div
                 key={i}
                 onClick={() => focusBlock(cells)}
-                className="card p-3.5 text-left hover:border-[var(--border-strong)] transition-colors"
+                role="button"
+                tabIndex={0}
+                className="card p-3.5 text-left cursor-pointer hover:border-[var(--border-strong)] transition-colors"
                 style={
                   everyone
                     ? { borderColor: "rgba(var(--mint-rgb),0.5)" }
@@ -168,10 +189,39 @@ export function GroupView({
                     {everyone ? "todos" : `${b.count}/${total}`}
                   </span>
                 </div>
-                <div className="display text-[1.15rem] mono">
-                  {b.startLabel}–{b.endLabel}
+                <div className="flex items-end justify-between gap-2">
+                  <div className="display text-[1.15rem] mono">
+                    {b.startLabel}–{b.endLabel}
+                  </div>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      agendar(b);
+                    }}
+                    className="inline-flex items-center gap-1 text-xs font-semibold text-[var(--muted)] hover:text-[var(--mint-bright)] transition-colors shrink-0"
+                    title="Descargar al calendario (.ics)"
+                  >
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                      <rect
+                        x="3.5"
+                        y="5"
+                        width="17"
+                        height="16"
+                        rx="2.5"
+                        stroke="currentColor"
+                        strokeWidth="1.8"
+                      />
+                      <path
+                        d="M3.5 9.5h17M8 3v3M16 3v3"
+                        stroke="currentColor"
+                        strokeWidth="1.8"
+                        strokeLinecap="round"
+                      />
+                    </svg>
+                    Agendar
+                  </button>
                 </div>
-              </button>
+              </div>
             );
           })}
         </div>

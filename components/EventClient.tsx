@@ -266,7 +266,8 @@ export function EventClient({
                   {name ? (
                     <>
                       <strong className="text-[var(--text)]">Arrastrá</strong> para
-                      marcar cuándo podés. De nuevo para borrar.
+                      marcar cuándo podés (de nuevo para borrar). Tocá el día para
+                      marcarlo entero.
                     </>
                   ) : (
                     "Poné tu nombre para empezar."
