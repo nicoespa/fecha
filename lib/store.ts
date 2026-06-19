@@ -1,4 +1,5 @@
 import { Redis } from "@upstash/redis";
+import { list, put } from "@vercel/blob";
 import type { EventMeta, EventState, Participant } from "./types";
 
 /**
@@ -93,6 +94,69 @@ function parseParticipant(raw: unknown): Participant | null {
   return raw as Participant;
 }
 
+// ---------------- Vercel Blob-backed ----------------
+
+/**
+ * Each participant owns one blob, so concurrent submissions never clobber each
+ * other. Meta is a separate immutable blob. cacheControlMaxAge: 0 keeps polled
+ * reads fresh enough for the live view.
+ */
+function makeBlobStore(token: string): Store {
+  const metaPath = (slug: string) => `events/${slug}/meta.json`;
+  const partPath = (slug: string, pid: string) => `events/${slug}/p/${pid}.json`;
+
+  const writeJson = (pathname: string, data: unknown) =>
+    put(pathname, JSON.stringify(data), {
+      access: "public",
+      token,
+      addRandomSuffix: false,
+      allowOverwrite: true,
+      contentType: "application/json",
+      cacheControlMaxAge: 0,
+    });
+
+  const readJson = async <T>(url: string): Promise<T | null> => {
+    try {
+      const r = await fetch(url, { cache: "no-store" });
+      if (!r.ok) return null;
+      return (await r.json()) as T;
+    } catch {
+      return null;
+    }
+  };
+
+  return {
+    async createEvent(meta) {
+      await writeJson(metaPath(meta.slug), meta);
+    },
+    async getMeta(slug) {
+      const { blobs } = await list({ prefix: metaPath(slug), token, limit: 1 });
+      const b = blobs.find((x) => x.pathname === metaPath(slug));
+      return b ? await readJson<EventMeta>(b.url) : null;
+    },
+    async getEvent(slug) {
+      const { blobs } = await list({ prefix: `events/${slug}/`, token });
+      const metaBlob = blobs.find((b) => b.pathname === metaPath(slug));
+      if (!metaBlob) return null;
+      const meta = await readJson<EventMeta>(metaBlob.url);
+      if (!meta) return null;
+      const partBlobs = blobs.filter((b) =>
+        b.pathname.startsWith(`events/${slug}/p/`),
+      );
+      const loaded = await Promise.all(
+        partBlobs.map((b) => readJson<Participant>(b.url)),
+      );
+      const participants = loaded
+        .filter((p): p is Participant => !!p && Array.isArray(p.slots))
+        .sort((a, b) => a.updatedAt - b.updatedAt);
+      return { meta, participants };
+    },
+    async upsertParticipant(slug, p) {
+      await writeJson(partPath(slug, p.pid), p);
+    },
+  };
+}
+
 // ---------------- In-memory (dev fallback) ----------------
 
 interface MemEvent {
@@ -133,10 +197,18 @@ let _store: Store | null = null;
 export function store(): Store {
   if (_store) return _store;
   const creds = getRedisCreds();
-  _store = creds ? makeRedisStore(creds) : makeMemoryStore();
+  if (creds) {
+    _store = makeRedisStore(creds);
+  } else if (process.env.BLOB_READ_WRITE_TOKEN) {
+    _store = makeBlobStore(process.env.BLOB_READ_WRITE_TOKEN);
+  } else {
+    _store = makeMemoryStore();
+  }
   return _store;
 }
 
-export function storageMode(): "redis" | "memory" {
-  return getRedisCreds() ? "redis" : "memory";
+export function storageMode(): "redis" | "blob" | "memory" {
+  if (getRedisCreds()) return "redis";
+  if (process.env.BLOB_READ_WRITE_TOKEN) return "blob";
+  return "memory";
 }
